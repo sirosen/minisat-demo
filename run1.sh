@@ -1,0 +1,5 @@
+python minisat.py 'A'
+python minisat.py 'A & ~A'
+python minisat.py 'A | B'
+python minisat.py '(A | ~A) & B & ~B'
+python minisat.py '~((A | B) & ~B)'

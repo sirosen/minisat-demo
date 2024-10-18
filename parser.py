@@ -1,4 +1,3 @@
-#!/usr/bin/env python3.13
 import dataclasses
 import enum
 import sys
@@ -149,5 +148,5 @@ def parse(statement: str) -> ParseTreeElement:
 
 
 if __name__ == "__main__":
-    statement = sys.argv[1]
+    statement = sys.argv[1].strip()
     print(parse(statement))

@@ -1,6 +1,5 @@
 import dataclasses
 import enum
-import functools
 import sys
 import time
 import typing as t
@@ -36,56 +35,19 @@ class BinaryOperator:
     lhs: "ParseTreeElement"
     rhs: "ParseTreeElement"
 
-    def __post_init__(self) -> None:
-        self._saved_str = _str_of_tree(self)
-        self._hashval = hash(self._saved_str)
-
-    def __hash__(self) -> int:
-        return self._hashval
-
 
 @dataclasses.dataclass
 class UnaryOperator:
     operator: Operator
     value: "ParseTreeElement"
 
-    def __post_init__(self) -> None:
-        self._saved_str = _str_of_tree(self)
-        self._hashval = hash(self._saved_str)
-
-    def __hash__(self) -> int:
-        return self._hashval
-
 
 @dataclasses.dataclass
 class ParsedAtom:
     name: str
 
-    def __post_init__(self) -> None:
-        self._saved_str = _str_of_tree(self)
-        self._hashval = hash(self._saved_str)
-
-    def __hash__(self) -> int:
-        return self._hashval
-
 
 type ParseTreeElement = ParsedAtom | UnaryOperator | BinaryOperator
-
-
-def _str_of_tree(tree: ParseTreeElement) -> str:
-    if (saved_str := getattr(tree, "_saved_str", None)) is not None:
-        return saved_str
-    match tree:
-        case ParsedAtom(name=n):
-            return n
-        case UnaryOperator(Operator.NOT, value):
-            return f"~({_str_of_tree(value)})"
-        case BinaryOperator(Operator.OR, lhs=l, rhs=r):
-            return f"({_str_of_tree(l)}|{_str_of_tree(r)})"
-        case BinaryOperator(Operator.AND, lhs=l, rhs=r):
-            return f"({_str_of_tree(l)}&{_str_of_tree(r)})"
-        case _:
-            raise NotImplementedError("unreachable")
 
 
 class _Parser:
@@ -192,7 +154,6 @@ def parse(statement: str) -> ParseTreeElement:
     return _Parser(statement).parsed
 
 
-@functools.cache
 def all_atom_names(tree: ParseTreeElement) -> set[str]:
     if isinstance(tree, ParsedAtom):
         return {tree.name}

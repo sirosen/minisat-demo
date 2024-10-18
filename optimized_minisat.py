@@ -210,11 +210,16 @@ def all_atom_names(tree: ParseTreeElement) -> set[str]:
 class SATHypothesis:
     def __init__(self, hypotheses: t.Mapping[str, bool]) -> None:
         self.values: PMap[str, bool] = pmap(hypotheses)
+        self._hashval = hash((self.__class__, self.values))
 
     def set(self, name: str, value: bool) -> "SATHypothesis":
         return SATHypothesis({name: value, **self.values})
 
+    def __hash__(self) -> int:
+        return self._hashval
 
+
+@functools.cache
 def _evaluate_hypothesis(tree: ParseTreeElement, hypothesis: SATHypothesis) -> bool:
     match tree:
         case ParsedAtom(name=n):
