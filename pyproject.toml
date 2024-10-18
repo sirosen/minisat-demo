@@ -1,0 +1,5 @@
+[dependency-groups]
+runtime = ["pyrsistent"]
+
+[tool.isort]
+profile = "black"
