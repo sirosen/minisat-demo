@@ -2,9 +2,6 @@
 import dataclasses
 import enum
 import sys
-import typing as t
-
-from pyrsistent import PMap, pmap
 
 
 class Operator(enum.Enum):
@@ -149,47 +146,6 @@ class _Parser:
 
 def parse(statement: str) -> ParseTreeElement:
     return _Parser(statement).parsed
-
-
-def all_atom_names(tree: ParseTreeElement) -> set[str]:
-    if isinstance(tree, ParsedAtom):
-        return {tree.name}
-    elif isinstance(tree, UnaryOperator):
-        return all_atom_names(tree.value)
-    elif isinstance(tree, BinaryOperator):
-        return all_atom_names(tree.lhs).union(all_atom_names(tree.rhs))
-    else:
-        t.assert_never(tree)
-
-
-# --- end parser ---
-
-
-class SATHypothesis:
-    def __init__(self, hypotheses: t.Mapping[str, bool]) -> None:
-        self.values: PMap[str, bool] = pmap(hypotheses)
-
-    def set(self, name: str, value: bool) -> "SATHypothesis":
-        return SATHypothesis({name: value, **self.values})
-
-
-def _evaluate_hypothesis(tree: ParseTreeElement, hypothesis: SATHypothesis): ...
-
-
-def _evolutions(names: set[str], hypothesis: SATHypothesis): ...
-
-
-def _is_satisfiable_under_hypothesis(
-    tree: ParseTreeElement, hypothesis: SATHypothesis
-) -> bool:
-    all_names = all_atom_names(tree)
-    if all_names <= set(hypothesis.values.keys()):
-        return _evaluate_hypothesis(tree, hypothesis)
-    else:
-        return any(
-            _is_satisfiable_under_hypothesis(tree, evolved_hypothesis)
-            for evolved_hypothesis in _evolutions(all_names, hypothesis)
-        )
 
 
 if __name__ == "__main__":
